@@ -7,13 +7,13 @@ import (
 )
 
 type DockerImage struct {
-	name         string
-	portExternal int
-	portInternal int
+	Name         string
+	PortExternal int
+	PortInternal int
 }
 
 func (d *DockerImage) setup() {
-	cmdString := "docker run -d --rm -p " + strconv.Itoa(d.portExternal) + ":" + strconv.Itoa(d.portInternal) + " --name nexus sonatype/nexus3:3.16.1"
+	cmdString := "docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name nexus sonatype/nexus3:3.16.1"
 	cmd := exec.Command("bash", "-c", cmdString)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
