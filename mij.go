@@ -12,7 +12,7 @@ type DockerImage struct {
 	PortInternal int
 }
 
-func (d *DockerImage) setup() {
+func (d *DockerImage) Setup() {
 	cmdString := "docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name nexus sonatype/nexus3:3.16.1"
 	cmd := exec.Command("bash", "-c", cmdString)
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -21,7 +21,7 @@ func (d *DockerImage) setup() {
 	}
 }
 
-func (d *DockerImage) shutdown() {
+func (d *DockerImage) Shutdown() {
 	cmd := exec.Command("bash", "-c", "docker stop nexus")
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
