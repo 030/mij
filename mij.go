@@ -28,7 +28,7 @@ func bash(cmd string) error {
 }
 
 func (d *DockerImage) Run() {
-	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='cat " + d.LogFile + " | grep '" + d.LogFileStringHealthCheck + "' " + d.Name + ":" + d.Version); err != nil {
+	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='cat " + d.LogFile + " | grep \"" + d.LogFileStringHealthCheck + "\"' " + d.Name + ":" + d.Version); err != nil {
 		log.Fatal(err)
 	}
 
