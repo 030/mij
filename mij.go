@@ -24,7 +24,7 @@ func bash(cmd string) {
 }
 
 func (d *DockerImage) Run() {
-	bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 10 --health-retries 10 --health-cmd=http://localhost:" + d.PortInternal + " " + d.Name + ":" + d.Version)
+	bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 10 --health-retries 10 --health-cmd=http://localhost:" + strconv.Itoa(d.PortInternal) + " " + d.Name + ":" + d.Version)
 }
 
 func (d *DockerImage) Stop() {
