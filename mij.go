@@ -33,21 +33,21 @@ func bash(cmd string) error {
 func (d *DockerImage) Run() {
 	var healthcheck string
 	if d.HealthcheckURL != "" {
-	  healthcheck = "curl --fail "+d.HealthcheckURL
+		healthcheck = "curl --fail " + d.HealthcheckURL
 	} else {
-	  healthcheck = "cat " + d.LogFile + " | grep \"" + d.LogFileStringHealthCheck + "\""
+		healthcheck = "cat " + d.LogFile + " | grep \"" + d.LogFileStringHealthCheck + "\""
 	}
-	
+
 	var envVars string
 	var str strings.Builder
-	if len(d.EnvironmentVariables)>0{
-		for _,e:=range envVars{
-		  str.WriteString(" -e "+e)
+	if len(d.EnvironmentVariables) > 0 {
+		for _, e := range d.EnvironmentVariables {
+			str.WriteString(" -e " + e)
 		}
 		envVars = str.String()
 	}
-	
-	if err := bash("docker run -d --rm " +envVars+ " -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='"+healthcheck+"' " + d.Name + ":" + d.Version); err != nil {
+
+	if err := bash("docker run -d --rm " + envVars + " -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='" + healthcheck + "' " + d.Name + ":" + d.Version); err != nil {
 		log.Fatal(err)
 	}
 
