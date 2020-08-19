@@ -15,7 +15,7 @@ type DockerImage struct {
 	Version       string
 }
 
-func bash(cmd) {
+func bash(cmd string) {
 	b, err := exec.Command("bash", "-c", cmd).CombinedOutput()
 	log.Info(string(b))
 	if err != nil {
