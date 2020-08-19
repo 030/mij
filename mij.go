@@ -15,6 +15,7 @@ type DockerImage struct {
 	Version                  string
 	LogFile                  string
 	LogFileStringHealthCheck string
+	HealthcheckURL           string
 }
 
 func bash(cmd string) error {
@@ -28,7 +29,14 @@ func bash(cmd string) error {
 }
 
 func (d *DockerImage) Run() {
-	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='cat " + d.LogFile + " | grep \"" + d.LogFileStringHealthCheck + "\"' " + d.Name + ":" + d.Version); err != nil {
+	var healthcheck string
+	if d.HealthcheckURL != "" {
+	  healthcheck = "curl --fail "+d.HealthcheckURL
+	} else {
+	  healthcheck = "cat " + d.LogFile + " | grep \"" + d.LogFileStringHealthCheck + "\""
+	}
+	
+	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='"+healthcheck+"' " + d.Name + ":" + d.Version); err != nil {
 		log.Fatal(err)
 	}
 
