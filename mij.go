@@ -3,6 +3,7 @@ package mij
 import (
 	"os/exec"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,6 +17,7 @@ type DockerImage struct {
 	LogFile                  string
 	LogFileStringHealthCheck string
 	HealthcheckURL           string
+	EnvironmentVariables     []string
 }
 
 func bash(cmd string) error {
@@ -36,7 +38,16 @@ func (d *DockerImage) Run() {
 	  healthcheck = "cat " + d.LogFile + " | grep \"" + d.LogFileStringHealthCheck + "\""
 	}
 	
-	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='"+healthcheck+"' " + d.Name + ":" + d.Version); err != nil {
+	var envVars string
+	var str strings.Builder
+	if len(d.EnvironmentVariables)>0{
+		for _,e:=range envVars{
+		  str.WriteString(" -e "+e)
+		}
+		envVars = str.String()
+	}
+	
+	if err := bash("docker run -d --rm " +envVars+ " -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='"+healthcheck+"' " + d.Name + ":" + d.Version); err != nil {
 		log.Fatal(err)
 	}
 
