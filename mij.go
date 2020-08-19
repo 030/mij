@@ -13,20 +13,31 @@ type DockerImage struct {
 	PortInternal  int
 	PortExternal  int
 	Version       string
+	URI           string
 }
 
-func bash(cmd string) {
+func bash(cmd string) error {
 	b, err := exec.Command("bash", "-c", cmd).CombinedOutput()
 	log.Info(string(b))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 func (d *DockerImage) Run() {
-	bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 10s --health-retries 10 --health-cmd=http://localhost:" + strconv.Itoa(d.PortInternal) + " " + d.Name + ":" + d.Version)
+	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 10s --health-retries 10 --health-cmd=curl http://localhost:" + strconv.Itoa(d.PortInternal) + d.URI + " " + d.Name + ":" + d.Version); err != nil {
+		log.Fatal(err)
+	}
+
+	for bash("docker ps -f name="+d.Name+" -f health=healthy | grep "+d.Name) != nil {
+		log.Warn("Docker container unhealthy")
+	}
+	log.Info("Docker container healthy")
 }
 
 func (d *DockerImage) Stop() {
-	bash("docker stop " + d.ContainerName)
+	if err := bash("docker stop " + d.ContainerName); err != nil {
+		log.Fatal(err)
+	}
 }
