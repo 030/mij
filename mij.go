@@ -27,11 +27,11 @@ func bash(cmd string) error {
 }
 
 func (d *DockerImage) Run() {
-	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 10s --health-retries 10 --health-cmd='curl http://localhost:" + strconv.Itoa(d.PortInternal) + d.URI + "' " + d.Name + ":" + d.Version); err != nil {
+	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='curl --fail http://localhost:" + strconv.Itoa(d.PortInternal) + d.URI + "' " + d.Name + ":" + d.Version); err != nil {
 		log.Fatal(err)
 	}
 
-	for bash("docker ps -f name="+d.Name+" -f health=healthy | grep "+d.Name) != nil {
+	for bash("docker ps -f name="+d.ContainerName+" -f health=healthy | grep "+d.ContainerName) != nil {
 		log.Warn("Docker container unhealthy")
 	}
 	log.Info("Docker container healthy")
