@@ -8,12 +8,13 @@ import (
 )
 
 type DockerImage struct {
-	ContainerName string
-	Name          string
-	PortInternal  int
-	PortExternal  int
-	Version       string
-	URI           string
+	ContainerName            string
+	Name                     string
+	PortInternal             int
+	PortExternal             int
+	Version                  string
+	LogFile                  string
+	LogFileStringHealthCheck string
 }
 
 func bash(cmd string) error {
@@ -27,7 +28,7 @@ func bash(cmd string) error {
 }
 
 func (d *DockerImage) Run() {
-	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='curl --fail http://localhost:" + strconv.Itoa(d.PortInternal) + d.URI + "' " + d.Name + ":" + d.Version); err != nil {
+	if err := bash("docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='cat " + d.LogFile + " | grep '" + d.LogFileStringHealthCheck + "' " + d.Name + ":" + d.Version); err != nil {
 		log.Fatal(err)
 	}
 
