@@ -1,9 +1,10 @@
 package mij
 
 import (
-	"log"
 	"os/exec"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type DockerImage struct {
@@ -14,7 +15,7 @@ type DockerImage struct {
 }
 
 func (d *DockerImage) Setup() {
-	cmdString := "docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + Name + " " + Name + ":" + Version
+	cmdString := "docker run -d --rm -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.Name + " " + d.Name + ":" + d.Version
 	cmd := exec.Command("bash", "-c", cmdString)
 	stdoutStderr, err := cmd.CombinedOutput()
 	log.Info(stdoutStderr)
@@ -24,7 +25,7 @@ func (d *DockerImage) Setup() {
 }
 
 func (d *DockerImage) Shutdown() {
-	cmd := exec.Command("bash", "-c", "docker stop "+Name)
+	cmd := exec.Command("bash", "-c", "docker stop "+d.Name)
 	stdoutStderr, err := cmd.CombinedOutput()
 	log.Info(stdoutStderr)
 	if err != nil {
