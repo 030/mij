@@ -4,6 +4,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -21,16 +22,16 @@ type DockerImage struct {
 }
 
 func bash(cmd string) error {
-	log.Info(cmd)
+	log.Debug(cmd)
 	b, err := exec.Command("bash", "-c", cmd).CombinedOutput()
-	log.Info(string(b))
+	log.Debug(string(b))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *DockerImage) Run() {
+func (d *DockerImage) Run() error {
 	var healthcheck string
 	if d.HealthcheckURL != "" {
 		healthcheck = "curl --fail " + d.HealthcheckURL
@@ -48,17 +49,20 @@ func (d *DockerImage) Run() {
 	}
 
 	if err := bash("docker run -d --rm " + envVars + " -p " + strconv.Itoa(d.PortExternal) + ":" + strconv.Itoa(d.PortInternal) + " --name " + d.ContainerName + " --health-interval 5s --health-retries 10 --health-cmd='" + healthcheck + "' " + d.Name + ":" + d.Version); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	for bash("docker ps -f name="+d.ContainerName+" -f health=healthy | grep "+d.ContainerName) != nil {
-		log.Warn("Docker container unhealthy")
+		log.Warnf("Docker container: '%s' unhealthy", d.ContainerName)
+		time.Sleep(10 * time.Second)
 	}
 	log.Info("Docker container healthy")
+	return nil
 }
 
-func (d *DockerImage) Stop() {
+func (d *DockerImage) Stop() error {
 	if err := bash("docker stop " + d.ContainerName); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
